@@ -196,7 +196,7 @@ int main(int argc, char *argv[]) {
                 stream1 << inputs1[i] << "\n";
             }
             fprintf(sysin1, (stream1.str()).c_str());
-            // 'print' the string storaged in instr (input stream) into the file 
+            // 'prints' the string storaged in stream1 (input stream) into the file 
             // ..which uses the pipe that the child process will use as standard
             // ..input for the program it will run.
             fclose(sysin1);
