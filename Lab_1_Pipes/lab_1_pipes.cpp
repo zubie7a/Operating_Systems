@@ -94,8 +94,8 @@ int main(int argc, char *argv[]) {
     // fork will create a child process, which will have 0 as the pid
     // ..which will help identifying between them as child or parent
     // Both parent and child share the state of the program up to here.
-    if(pid1 == 0){    
-        // ---- Code to run if its the first children!!! ----//
+    if(pid1 == (pid_t) 0){    
+        // ---- Code to run if its the first children!!! ---- //
         close(pip4[0]);
         close(pip4[1]);
         close(pip3[0]);
@@ -132,8 +132,8 @@ int main(int argc, char *argv[]) {
             cerr << "Error: could not be forked." << endl;
             exit(-2);
         }
-        if(pid2 == 0){
-            // ---- Code to run if its the second children!!! ----//
+        if(pid2 == (pid_t) 0){
+            // ---- Code to run if its the second children!!! ---- //
             close(pip1[0]);
             close(pip1[1]);
             close(pip2[0]);
@@ -156,7 +156,7 @@ int main(int argc, char *argv[]) {
             // As MJ once said.. kind of, 'Remember to always close pipes'
         }
         else {
-            // ---- Code to run if its the parent!!! ----//
+            // ---- Code to run if its the parent!!! ---- //
             close(pip1[0]);
             close(pip2[1]);
             // Unused ends related to the first children
@@ -204,7 +204,7 @@ int main(int argc, char *argv[]) {
             // Now, do the same for the 2nd children, which will have a little
             // ..different input, but not that much different that is.
 
-            // --- BEGIN REPETITION OF CODE OF FIRST CHILDREN --- //
+            // ---- PREPARATION OF INPUT AGAIN, FOR THE SECOND CHILDREN ---- //
             ostringstream stream2;
             int status2;
             string response2 = "";
@@ -225,7 +225,7 @@ int main(int argc, char *argv[]) {
             }
             fprintf(sysin2, (stream2.str()).c_str());
             fclose(sysin2);
-            // --- END REPETITION OF CODE OF FIRST CHILDREN --- //
+            // --- END OF SECOND CHILDREN INPUT PREPARATION --- //
 
             waitpid(pid1, &status1, 0);
             waitpid(pid2, &status2, 0);
