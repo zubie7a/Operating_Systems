@@ -62,7 +62,7 @@ void Inputs::clear(){
 // -3: standard I/O failed to be redirected.
 // -4: secondary program failed [to run|while running].
 
-void exception(int val){
+void error(int val){
     cerr << "Error: ";
     switch(val){
     case  1: cerr << "this program can't be run with any parameters." << endl;
@@ -77,7 +77,7 @@ void exception(int val){
 
 int main(int argc, char *argv[]) {
     if(argc != 1){
-        exception(1);
+        error(1);
     }
     int pip1[2];
     int pip2[2];
@@ -90,7 +90,7 @@ int main(int argc, char *argv[]) {
     if ((pipe(pip1) < 0) || (pipe(pip2) < 0) ||
         (pipe(pip3) < 0) || (pipe(pip4) < 0)){
         // If creating either pipe fails, then the program will terminate
-        exception(-1);
+        error(-1);
     }
     // pipe(..) creates the reading and writing ends of a pipe
     // a pipe is a mechanism for process intercommunication
@@ -101,7 +101,7 @@ int main(int argc, char *argv[]) {
     pid_t pid1, pid2;
     if((pid1 = fork()) < (pid_t) 0){
         // If forking the program fails, the program will terminate
-        exception(-2);
+        error(-2);
     }
     // fork will create a child process, which will have 0 as the pid
     // ..which will help identifying between them as child or parent
@@ -123,7 +123,7 @@ int main(int argc, char *argv[]) {
             // dup2(pip1[0], 0) ... 0 - STDIN
             // dup2(pip2[1], 1) ... 1 - STDOUT (2 - STDERR)
             // If redirecting the standard I/O fails the program will terminate
-            exception(-3);
+            error(-3);
         }
         // At some point whatever the child outputs, will be the input
         // ..in the father process, the father will do stuff until it
@@ -133,7 +133,7 @@ int main(int argc, char *argv[]) {
         // Now that output has been redirected, run the secondary program
         if(execl("./prog", "prog", (char *) 0) < 0){
             // If running the secondary program fails the program will terminate
-            exception(-4);
+            error(-4);
         }
         // execl: path, arguments (including program name), null finisher.
         // This executed program will have pip1[0] as STDIN, pip2[1] as STDOUT
@@ -145,7 +145,7 @@ int main(int argc, char *argv[]) {
     else{ 
         if((pid2 = fork()) < (pid_t) 0){
             // If forking the program again fails, the program will terminate
-            exception(-2);
+            error(-2);
         }
         if(pid2 == (pid_t) 0){
             // ---- Code to run if its the second children!!! ---- //
@@ -163,12 +163,12 @@ int main(int argc, char *argv[]) {
                 // dup2(pip3[0], 0) ... 0 - STDIN
                 // dup2(pip4[1], 1) ... 1 - STDOUT (2 - STDERR)
                 // If redirecting the standard I/O fails the program will terminate
-                exception(-3);
+                error(-3);
             }
             // Now that output has been redirected, run the secondary program
             if(execl("./prog", "prog", (char *) 0) < 0){
                 // If running the secondary program fails, the program will terminate
-                exception(-4);
+                error(-4);
             }
             close(pip3[0]);
             close(pip4[1]);
