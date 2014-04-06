@@ -55,7 +55,7 @@ void Inputs::clear(){
 
 // This program will have several 'exiting' codes, such as:
 //  0: terminated successfully.
-// ------ if the program encounters an 'exception' ------
+// ------ if the program encounters an 'error' ------
 //  1: was not run with zero arguments.
 // -1: pipes could not be created.
 // -2: program could not be forked.
