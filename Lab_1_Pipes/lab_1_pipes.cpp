@@ -54,16 +54,30 @@ void Inputs::clear(){
 }
 
 // This program will have several 'exiting' codes, such as:
-//  0: terminated successfully
-//  1: was not run with zero arguments
-// -1: pipes could not be created
-// -2: program could not be forked
-// -3: secondary program could not be run
+//  0: terminated successfully.
+// ------ if the program encounters an 'exception' ------
+//  1: was not run with zero arguments.
+// -1: pipes could not be created.
+// -2: program could not be forked.
+// -3: standard I/O failed to be redirected.
+// -4: secondary program failed [to run|while running].
+
+void exception(int val){
+    cerr << "Error: ";
+    switch(val){
+    case  1: cerr << "this program can't be run with any parameters." << endl;
+    case -1: cerr << "pipes could not be created." << endl;
+    case -2: cerr << "program could not be forked." << endl;
+    case -3: cerr << "standard I/O could not be redirected." << endl;
+    case -4: cerr << "secondary program could not be run." << endl;
+    default: return;
+    }
+    exit(val);
+}
+
 int main(int argc, char *argv[]) {
     if(argc != 1){
-        cerr << "Error: this program can't be run with any parameters." 
-             << endl;
-        exit(1);
+        exception(1);
     }
     int pip1[2];
     int pip2[2];
@@ -76,8 +90,7 @@ int main(int argc, char *argv[]) {
     if ((pipe(pip1) < 0) || (pipe(pip2) < 0) ||
         (pipe(pip3) < 0) || (pipe(pip4) < 0)){
         // If creating either pipe fails, then the program will terminate
-        cerr << "Error: pipes could not be created." << endl;
-        exit(-1);
+        exception(-1);
     }
     // pipe(..) creates the reading and writing ends of a pipe
     // a pipe is a mechanism for process intercommunication
@@ -88,8 +101,7 @@ int main(int argc, char *argv[]) {
     pid_t pid1, pid2;
     if((pid1 = fork()) < (pid_t) 0){
         // If forking the program fails, the program will terminate
-        cerr << "Error: program could not be forked." << endl;
-        exit(-2);
+        exception(-2);
     }
     // fork will create a child process, which will have 0 as the pid
     // ..which will help identifying between them as child or parent
@@ -106,18 +118,22 @@ int main(int argc, char *argv[]) {
         close(pip2[0]);
         // Ends related to the parent
         // Close then the unused ends of the pipe
-        dup2(pip1[0], 0); // 0 - STDIN
-        dup2(pip2[1], 1); // 1 - STDOUT (2 - STDERR)
-        // Redirect standard input and output
+        if((dup2(pip1[0], 0) < 0) || (dup2(pip2[1], 1) < 0)){
+            // Redirect standard input and output
+            // dup2(pip1[0], 0) ... 0 - STDIN
+            // dup2(pip2[1], 1) ... 1 - STDOUT (2 - STDERR)
+            // If redirecting the standard I/O fails the program will terminate
+            exception(-3);
+        }
         // At some point whatever the child outputs, will be the input
         // ..in the father process, the father will do stuff until it
         // ..needs this children input, so at some point it will wait
         // ..for some sort of signal sent from the children indicating
         // ..it has already finished doing something it was doing.
+        // Now that output has been redirected, run the secondary program
         if(execl("./prog", "prog", (char *) 0) < 0){
-            // If running the secondary program fails, the program will terminate
-            cerr << "Error: secondary program could not be run." << endl;
-            exit(-3);
+            // If running the secondary program fails the program will terminate
+            exception(-4);
         }
         // execl: path, arguments (including program name), null finisher.
         // This executed program will have pip1[0] as STDIN, pip2[1] as STDOUT
@@ -129,8 +145,7 @@ int main(int argc, char *argv[]) {
     else{ 
         if((pid2 = fork()) < (pid_t) 0){
             // If forking the program again fails, the program will terminate
-            cerr << "Error: could not be forked." << endl;
-            exit(-2);
+            exception(-2);
         }
         if(pid2 == (pid_t) 0){
             // ---- Code to run if its the second children!!! ---- //
@@ -143,13 +158,17 @@ int main(int argc, char *argv[]) {
             close(pip3[1]);
             close(pip4[0]);
             // Ends related to the parent
-            // Close then the unused ends of the pipe
-            dup2(pip3[0], 0); // 0 - STDIN
-            dup2(pip4[1], 1); // 1 - STDOUT (2 - STDERR)
+            if((dup2(pip3[0], 0) < 0) || (dup2(pip4[1], 1) < 0)){
+                // Redirect standard input and output
+                // dup2(pip3[0], 0) ... 0 - STDIN
+                // dup2(pip4[1], 1) ... 1 - STDOUT (2 - STDERR)
+                // If redirecting the standard I/O fails the program will terminate
+                exception(-3);
+            }
+            // Now that output has been redirected, run the secondary program
             if(execl("./prog", "prog", (char *) 0) < 0){
                 // If running the secondary program fails, the program will terminate
-                cerr << "Error: secondary program could not be run." << endl;
-                exit(-3);
+                exception(-4);
             }
             close(pip3[0]);
             close(pip4[1]);
