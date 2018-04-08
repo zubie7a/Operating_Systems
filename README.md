@@ -1,7 +1,7 @@
 ## Santiago Zubieta
 #### EAFIT University, 2014-1
 
-*'In space we're here a million miles away'*
+*'In space we're here a million miles away'*  
 -Karen O, The Moon Song (Her OST)
 
 ## Operating Systems Course Labs
