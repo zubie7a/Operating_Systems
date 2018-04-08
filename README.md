@@ -1,6 +1,9 @@
 ## Santiago Zubieta
 #### EAFIT University, 2014-1
 
+*'In space we're here a million miles away'*
+-Karen O, The Moon Song (Her OST)
+
 ## Operating Systems Course Labs
 This repo contains code from labs, homework, and other neat stuff from the Operating Systems class, done mostly in **C++**. This was made for educational purposes and is licensed under the **MIT License**.
 ### Labs
