@@ -2,7 +2,7 @@
 #### Universidad EAFIT, 2014-1
 
 ## Operating Systems
-This repo contains code from labs, homework, and other neat stuff from the **Operating Systems** class, done mostly in **C++**.
+This repo contains code from labs, homework, and other stuff from the **Operating Systems** class, done in **C++**.
 
 This was made for educational purposes and is licensed under the **MIT License**.
 
